@@ -1,28 +1,10 @@
-// ==UserScript==
-// @name         Reddit Place - Armée de Kameto
-// @namespace    https://github.com/CorentinGC/reddit-place-kcorp
-// @version      0.12
-// @description  On va récuperer ce qui nous est dû de droit.
-// @author       Adcoss95 & CorentinGC
-// @match        https://hot-potato.reddit.com/embed*
-// @match        https://new.reddit.com/r/place/*
-// @match        https://www.reddit.com/r/place/*
-// @icon         https://raw.githubusercontent.com/CorentinGC/reddit-place-kcorp/main/icon.jpg
-// @grant        none
-// @downloadURL  https://raw.githubusercontent.com/CorentinGC/reddit-place-kcorp/main/kcorp.user.js
-// @updateURL    https://raw.githubusercontent.com/CorentinGC/reddit-place-kcorp/main/kcorp.user.js
-// @supportURL   https://github.com/CorentinGC/reddit-place-kcorp/issues
-
-// ==/UserScript==
-
-// credits to the osu! logo team for script base !
-const DEBUG = false;
+const DEBUG = true;
 
 const UPDATE_URL = GM_info.script.updateURL;
-const DISCORD_URL = "https://discord.gg/kameto";
-const OVERLAY_URL = "https://raw.githubusercontent.com/CorentinGC/reddit-place-kcorp/main/overlay.png";
-const VERSION_URL = "https://raw.githubusercontent.com/CorentinGC/reddit-place-kcorp/main/version.json";
-const REDDIT_URL = "https://new.reddit.com/r/place/";
+const DISCORD_URL = "";
+const OVERLAY_URL = "https://raw.githubusercontent.com/42staverni/42lsa_ftplace/main/overlay.png";
+const VERSION_URL = "https://raw.githubusercontent.com/42staverni/42lsa_ftplace/main/version.json";
+const FTPLACE_URL = "https://ftplace.42lausanne.ch/";
 
 const allowedLangs = ['fr', 'en'];
 const defaultOpts = {
@@ -34,9 +16,9 @@ const defaultOpts = {
     VERSION: GM_info.script.version,
     LANG: allowedLangs[0]
 };
-let opts = JSON.parse(localStorage.getItem("kc_opts")) || defaultOpts;
+let opts = JSON.parse(localStorage.getItem("42lsa_opts")) || defaultOpts;
 
-const saveOpts = () => localStorage.setItem("kc_opts", JSON.stringify(opts));
+const saveOpts = () => localStorage.setItem("42lsa_opts", JSON.stringify(opts));
 const refreshOpts = () => {
     if(GM_info.script.version !== opts.VERSION){
         opts = {
@@ -162,7 +144,7 @@ const showUpdate = (version) => {
 }
 
 (async function() {
-    log("Loading KCorp module");
+    console.log("Loading 42LSA module");
 
     if (window.top !== window.self) {
         const overlayURL = () => OVERLAY_URL+(opts.ENABLE_IMGNOCACHE ? "?t="+new Date().getTime() : "");
@@ -380,7 +362,7 @@ const showUpdate = (version) => {
                         if(opts.LANG === event.target.id) return;
                         opts.LANG = event.target.id;
                         saveOpts();
-                        window.location.href = REDDIT_URL;
+                        window.location.href = FTPLACE_URL;
                     })
                 }
                 // Version
@@ -417,8 +399,5 @@ const showUpdate = (version) => {
             showUi();
         }, false);
     } else checkVersion()
-    log("KCorp module loaded");
+    console.log("42LSA module loaded");
 })();
-
-
-
