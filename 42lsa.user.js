@@ -13,11 +13,6 @@
 // @supportURL   https://github.com/42staverni/42lsa_ftplace/issues
 // ==/UserScript==
 
-// ^^^ IMPORTANT: The header above is for when this script is NOT loaded via @require.
-// If you are using a loader script in Tampermonkey with @require,
-// that loader script should have the definitive header, and this one can be removed
-// or just kept for reference. The @grant directives in the *active* script (the loader) are what matter.
-
 (async function () {
     'use strict';
 
