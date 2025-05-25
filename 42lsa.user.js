@@ -47,8 +47,7 @@ const LANGS = {
         btn_autorefresh_overlay: "{{0}} l'auto-refresh de l'overlay ({{1}}s)",
         btn_toggle_cache: "{{0}} le cache de l'overlay",
         overlay_opacity: "Opacité de l'overlay",
-        join_discord: "Rejoindre le discord de Kamet0",
-        by_shadow_team: "KCorp's overlay v{{0}} par la Team de L'Ombre"
+        by_shadow_team: "42LSA overlay v{{0}} par staverni"
     },
     en: {
         update_available: "`Update available v{{0}} > v{{1}} ! Click here to install`",
@@ -63,8 +62,7 @@ const LANGS = {
         btn_autorefresh_overlay: "{{0}} overlay's auto-refresh ({{1}}s)",
         btn_toggle_cache: "{{0}} overlay's cache",
         overlay_opacity: "Overlay's opacity",
-        join_discord: "Join Kamet0's discord !",
-        by_shadow_team: "KCorp's overlay v{{0}} by la Shadow's Team"
+        by_shadow_team: "42LSA overlay v{{0}} by staverni"
     },
 };
 const f = (key, ...vars) => {
@@ -114,7 +112,7 @@ const checkVersion = () => {
 
 }
 const showUpdate = (version) => {
-    if(document.getElementById("kcorp-update")) return;
+    if(document.getElementById("42lsa-update")) return;
 
     const update = document.createElement("div");
     update.style.position = "fixed";
@@ -131,7 +129,7 @@ const showUpdate = (version) => {
     update.style.borderRadius = "10px";
     update.style.fontSize = "1.3em";
     update.style.cursor = "pointer";
-    update.id = "kcorp-update";
+    update.id = "42lsa-update";
 
     let message = document.createTextNode(f("update_available", GM_info.script.version, version));
     update.appendChild(message);
@@ -144,260 +142,251 @@ const showUpdate = (version) => {
 }
 
 (async function() {
-    console.log("Loading 42LSA module");
+    console.log("Loading 42LSA module. Is Main Window?", window.top === window.self);
 
-    if (window.top !== window.self) {
-        const overlayURL = () => OVERLAY_URL+(opts.ENABLE_IMGNOCACHE ? "?t="+new Date().getTime() : "");
-        log({opts});
+    const overlayURL = () => OVERLAY_URL+(opts.ENABLE_IMGNOCACHE ? "?t="+new Date().getTime() : "");
+    log({opts});
 
-        window.addEventListener("load", () => {
-            log("Searching embed");
-            let embed = document.getElementsByTagName("mona-lisa-embed");
-            if ("undefined" === typeof embed || embed.length < 1) return;
-            log("Found embed");
+    window.addEventListener("load", () => {
+        log("Searching embed");
+        let canvas = document.querySelector('canvas.canvas_display[style*="display: block"]');
+        if (!canvas) {
+            canvas = document.querySelector('canvas.canvas_display');
+        }
+        if (!canvas) {
+            log("Canvas element not found!");
+            return;
+        }
+        let canvasContainer = canvas.parentNode;
 
-            log("Searching canvas");
-            let canvas = embed[0].shadowRoot.children[0].getElementsByTagName("mona-lisa-canvas");
-            if ("undefined" === typeof canvas || canvas.length < 1) return;
-            log("Found canvas");
+        let overlay, timer;
+        const updateOverlaySrc = () => {
+            overlay.src = overlayURL();
+        }
+        const overlayAutoRefresh = () => {
+            timer = setInterval(() => {
+                log("Autorefresh done");
+                updateOverlaySrc();
+            }, opts.AUTOREFRESH_DELAY);
+        }
+        const showOverlay = () => {
+            log("Reloading overlay");
 
-            log("Searching canvasContainer");
-            let canvasContainer = canvas[0].shadowRoot.children[0].getElementsByTagName("canvas");
-            if ("undefined" === typeof canvasContainer || canvasContainer.length < 1) return;
-            log("Found canvasContainer");
+            overlay = document.createElement("img");
+            overlay.src = overlayURL();
 
-            let overlay, timer;
-            const updateOverlaySrc = () => {
-                overlay.src = overlayURL();
+            overlay.style.position = "absolute";
+            overlay.style.imageRendering = "pixelated";
+            overlay.style.left = canvas.offsetLeft + 'px';
+            overlay.style.top = canvas.offsetTop + 'px';
+            overlay.style.width = canvas.offsetWidth + 'px';
+            overlay.style.height = canvas.offsetHeight + 'px';
+            overlay.style.opacity = + opts.OVERLAY_STATE;
+            overlay.style.pointerEvents = "none";
+            overlay.style.transform = canvas.style.transform;
+            overlay.style.marginTop = canvas.style.marginTop;
+            overlay.style.zIndex = '10';
+
+            canvasContainer.appendChild(overlay);
+            log("Overlay reloaded");
+        }
+
+        const showUi = () => {
+            log("Loading UI");
+            const defaultStyle = (element) => {
+                Object.assign(element.style, {
+                    border: "1px solid rgba(0,0,0,0.3)",
+                    backgroundColor: "white",
+                    fontSize: "0.9em",
+                    color: "black",
+                    fontWeight: "bold"
+                });
             }
-            const overlayAutoRefresh = () => {
-                timer = setInterval(() => {
-                    log("Autorefresh done");
-                    updateOverlaySrc();
-                }, opts.AUTOREFRESH_DELAY);
+            const defaultBtn = (element) => {
+                Object.assign(element.style, {
+                    borderRadius: "10px",
+                    marginBottom: "10px",
+                });
             }
-            const showOverlay = () => {
-                log("Reloading overlay");
-
-                overlay = document.createElement("img");
-                overlay.src = overlayURL();
-
-                overlay.style.position = "absolute";
-                overlay.style.left = 0;
-                overlay.style.top = 0;
-                overlay.style.imageRendering = "pixelated";
-                overlay.style.width = "2000px";
-                overlay.style.height = "2000px";
-                overlay.style.opacity = + opts.OVERLAY_STATE;
-                
-                canvasContainer[0].parentNode.appendChild(overlay);
-                log("Overlay reloaded");
+            const defaultSpan = (element) => {
+                Object.assign(element.style, {
+                    display: "inline-block",
+                    lineHeight: "34px",
+                    borderRadius: "10px",
+                    padding: "0 10px",
+                });
+            }
+            const defaultBlock = (element) => {
+                Object.assign(element.style, {
+                    padding: "0 10px",
+                    paddingTop: "5px",
+                    marginBottom: "10px",
+                    borderRadius: "10px",
+                });
             }
 
-            const showUi = () => {
-                log("Loading UI");
-                const defaultStyle = (element) => {
-                    Object.assign(element.style, {
-                        border: "1px solid rgba(0,0,0,0.3)",
-                        backgroundColor: "white",
-                        fontSize: "0.9em",
-                        color: "black",
-                        fontWeight: "bold"
-                    });
-                }
-                const defaultBtn = (element) => {
-                    Object.assign(element.style, {
-                        borderRadius: "10px",
-                        marginBottom: "10px",
-                    });
-                }
-                const defaultSpan = (element) => {
-                    Object.assign(element.style, {
-                        display: "inline-block",
-                        lineHeight: "34px",
-                        borderRadius: "10px",
-                        padding: "0 10px",
-                    });
-                }
-                const defaultBlock = (element) => {
-                    Object.assign(element.style, {
-                        padding: "0 10px",
-                        paddingTop: "5px",
-                        marginBottom: "10px",
-                        borderRadius: "10px",
-                    });
-                }
+            // Overlay's UI
+            const control = document.createElement("div");
+            control.style.position = "fixed";
+            control.style.left = "90px";
+            control.style.top = "16px";
+            control.style.maxWidth = "150px";
+            control.id = "42lsa-controls";
 
-                // Overlay's UI
-                const control = document.createElement("div");
-                control.style.position = "fixed";
-                control.style.left = "90px";
-                control.style.top = "16px";
-                control.style.maxWidth = "150px";
-                control.id = "kcorp-controls";
+            // Update Btn
+            const updateBtn = document.createElement("button");
+            updateBtn.innerHTML = f("btn_update_script");
+            defaultStyle(updateBtn);
+            defaultBtn(updateBtn);
+            updateBtn.addEventListener("click", () => {window.top.location = UPDATE_URL});
 
-                // Update Btn
-                const updateBtn = document.createElement("button");
-                updateBtn.innerHTML = f("btn_update_script");
-                defaultStyle(updateBtn);
-                defaultBtn(updateBtn);
-                updateBtn.addEventListener("click", () => {window.top.location = UPDATE_URL});
-
-                // ToggleOverlay Btn
-                const toggleOverlayBtnText = () => f("btn_toggle_overlay", opts.OVERLAY_STATE ? f("hide") : f("show"));
-                const handleOverlayBtn = () => {
-                    opts.OVERLAY_STATE = !opts.OVERLAY_STATE;
-                    saveOpts();
-                    toggleOverlayBtn.innerHTML = toggleOverlayBtnText();
-                    overlay.style.opacity = opts.OVERLAY_STATE ? opts.OVERLAY_OPACITY : 0;
-                }
-
-                const toggleOverlayBtn = document.createElement("button");
+            // ToggleOverlay Btn
+            const toggleOverlayBtnText = () => f("btn_toggle_overlay", opts.OVERLAY_STATE ? f("hide") : f("show"));
+            const handleOverlayBtn = () => {
+                opts.OVERLAY_STATE = !opts.OVERLAY_STATE;
+                saveOpts();
                 toggleOverlayBtn.innerHTML = toggleOverlayBtnText();
-                defaultStyle(toggleOverlayBtn);
-                defaultBtn(toggleOverlayBtn);
-                toggleOverlayBtn.addEventListener("click", handleOverlayBtn);
-
-                // Refresh Overlay Btn
-                const refreshOverlayBtn = document.createElement("button");
-                refreshOverlayBtn.innerHTML = f("btn_refresh_overlay");
-                defaultStyle(refreshOverlayBtn);
-                defaultBtn(refreshOverlayBtn);
-                refreshOverlayBtn.addEventListener("click", () => { overlay.src = overlayURL(); });
-
-                // Autorefresh Btn
-                const toggleAutoRefreshBtnText = () => f("btn_autorefresh_overlay", opts.ENABLE_AUTOREFRESH ? f("disable") : f("enable"), opts.AUTOREFRESH_DELAY/1000);
-
-                const handleAutoRefreshBtn = () => {
-                    opts.ENABLE_AUTOREFRESH = !opts.ENABLE_AUTOREFRESH;
-                    saveOpts();
-                    toggleAutorefreshBtn.innerHTML = toggleAutoRefreshBtnText();
-
-                    if(opts.ENABLE_AUTOREFRESH) {
-                        overlayAutoRefresh();
-                        handleNocacheBtn(toggleNocacheBtn, true);
-                        return;
-                    }
-                    clearInterval(timer);
-                }
-
-                // No cache Btn
-                const toggleNocacheBtnText = () => f("btn_toggle_cache", opts.ENABLE_IMGNOCACHE ? f("disable") : f("enable"));
-                const handleNocacheBtn = (btn, state=false) => {
-                    opts.ENABLE_IMGNOCACHE = state ? state : !opts.ENABLE_IMGNOCACHE;
-                    saveOpts();
-                    btn.innerHTML = toggleNocacheBtnText();
-                    btn.classList.toggle("disable");
-                }
-
-                const toggleNocacheBtn = document.createElement("button");
-                toggleNocacheBtn.innerHTML = toggleNocacheBtnText();
-                defaultStyle(toggleNocacheBtn);
-                defaultBtn(toggleNocacheBtn);
-                toggleNocacheBtn.addEventListener("click", () => handleNocacheBtn(toggleNocacheBtn));
-
-                const toggleAutorefreshBtn = document.createElement("button");
-                toggleAutorefreshBtn.innerHTML = toggleAutoRefreshBtnText();
-                defaultStyle(toggleAutorefreshBtn);
-                defaultBtn(toggleAutorefreshBtn);
-                toggleAutorefreshBtn.addEventListener("click", () => handleAutoRefreshBtn(toggleAutorefreshBtn));
-
-                // Opacity slider / @cchanche PR #27
-                const handleSlider = (event) => {
-                    if(!opts.OVERLAY_STATE) {
-                        slider.value = opts.OVERLAY_OPACITY;
-                        return;
-                    }
-                    overlay.style.opacity = event.currentTarget.value;
-                    opts.OVERLAY_OPACITY = event.currentTarget.value;
-                    saveOpts();
-                }
-
-                const sliderBlock = document.createElement("div");
-                defaultStyle(sliderBlock);
-                defaultBlock(sliderBlock);
-
-                const sliderText = document.createTextNode(f("overlay_opacity"));
-                const slider = document.createElement("input");
-                slider.type = "range";
-                slider.min = 0;
-                slider.max = 1;
-                slider.step = 0.05;
-                slider.value = opts.OVERLAY_OPACITY;
-                slider.boder = "1px solid rgba(0,0,0,0.3)";
-                sliderBlock.appendChild(sliderText);
-                sliderBlock.appendChild(slider);
-
-                slider.addEventListener("input", (event) => handleSlider(event));
-
-                // Discord Btn
-                const discordBtn = document.createElement("button");
-                discordBtn.innerHTML = f("join_discord");
-                defaultStyle(discordBtn);
-                defaultBtn(discordBtn);
-                discordBtn.addEventListener("click", () => open(DISCORD_URL));
-
-                const langDiv = document.createElement("div");
-                defaultBlock(langDiv);
-                for(let lang of allowedLangs){
-                    const langSpan = document.createElement("span");
-                    langSpan.innerHTML = lang
-                    langSpan.style.cursor = "pointer";
-                    langSpan.style.padding = "10px";
-                    langSpan.style.margin = "0 5px";
-                    langSpan.style.border = "1px solid rgba(0,0,0,0.3)";
-                    langSpan.style.borderRadius = "5px";
-                    langSpan.style.background = "white";
-                    langSpan.style.color = "black";
-                    langSpan.style.textTransform = "uppercase";
-                    langSpan.id = lang
-                    if(opts.LANG === lang) {
-                        langSpan.style.backgroundColor = "#c3c3c3";
-                        langSpan.style.cursor = "not-allowed";
-                    }
-
-                    langDiv.appendChild(langSpan);
-
-                    langSpan.addEventListener("click", (event) => {
-                        if(opts.LANG === event.target.id) return;
-                        opts.LANG = event.target.id;
-                        saveOpts();
-                        window.location.href = FTPLACE_URL;
-                    })
-                }
-                // Version
-                const credits = document.createElement("div");
-                credits.id = "kc-credits";
-
-                const versionSpan = document.createElement("span");
-                versionSpan.innerHTML = f("by_shadow_team", GM_info.script.version);
-                versionSpan.style.position = "fixed";
-                versionSpan.style.bottom = "10px";
-                versionSpan.style.right = "10px";
-                defaultStyle(versionSpan);
-                defaultSpan(versionSpan);
-
-                // Append elements
-                control.appendChild(updateBtn);
-                control.appendChild(toggleOverlayBtn);
-                control.appendChild(refreshOverlayBtn);
-                control.appendChild(toggleAutorefreshBtn);
-                control.appendChild(toggleNocacheBtn);
-                control.appendChild(sliderBlock);
-                control.appendChild(discordBtn);
-                control.appendChild(langDiv);
-
-                embed[0].parentNode.appendChild(control);
-
-                credits.appendChild(versionSpan);
-                embed[0].parentNode.appendChild(credits);
-                log("UI Loaded");
+                overlay.style.opacity = opts.OVERLAY_STATE ? opts.OVERLAY_OPACITY : 0;
             }
 
-            if(opts.ENABLE_AUTOREFRESH) overlayAutoRefresh();
-            showOverlay();
-            showUi();
-        }, false);
-    } else checkVersion()
+            const toggleOverlayBtn = document.createElement("button");
+            toggleOverlayBtn.innerHTML = toggleOverlayBtnText();
+            defaultStyle(toggleOverlayBtn);
+            defaultBtn(toggleOverlayBtn);
+            toggleOverlayBtn.addEventListener("click", handleOverlayBtn);
+
+            // Refresh Overlay Btn
+            const refreshOverlayBtn = document.createElement("button");
+            refreshOverlayBtn.innerHTML = f("btn_refresh_overlay");
+            defaultStyle(refreshOverlayBtn);
+            defaultBtn(refreshOverlayBtn);
+            refreshOverlayBtn.addEventListener("click", () => { overlay.src = overlayURL(); });
+
+            // Autorefresh Btn
+            const toggleAutoRefreshBtnText = () => f("btn_autorefresh_overlay", opts.ENABLE_AUTOREFRESH ? f("disable") : f("enable"), opts.AUTOREFRESH_DELAY/1000);
+
+            const handleAutoRefreshBtn = () => {
+                opts.ENABLE_AUTOREFRESH = !opts.ENABLE_AUTOREFRESH;
+                saveOpts();
+                toggleAutorefreshBtn.innerHTML = toggleAutoRefreshBtnText();
+
+                if(opts.ENABLE_AUTOREFRESH) {
+                    overlayAutoRefresh();
+                    handleNocacheBtn(toggleNocacheBtn, true);
+                    return;
+                }
+                clearInterval(timer);
+            }
+
+            // No cache Btn
+            const toggleNocacheBtnText = () => f("btn_toggle_cache", opts.ENABLE_IMGNOCACHE ? f("disable") : f("enable"));
+            const handleNocacheBtn = (btn, state=false) => {
+                opts.ENABLE_IMGNOCACHE = state ? state : !opts.ENABLE_IMGNOCACHE;
+                saveOpts();
+                btn.innerHTML = toggleNocacheBtnText();
+                btn.classList.toggle("disable");
+            }
+
+            const toggleNocacheBtn = document.createElement("button");
+            toggleNocacheBtn.innerHTML = toggleNocacheBtnText();
+            defaultStyle(toggleNocacheBtn);
+            defaultBtn(toggleNocacheBtn);
+            toggleNocacheBtn.addEventListener("click", () => handleNocacheBtn(toggleNocacheBtn));
+
+            const toggleAutorefreshBtn = document.createElement("button");
+            toggleAutorefreshBtn.innerHTML = toggleAutoRefreshBtnText();
+            defaultStyle(toggleAutorefreshBtn);
+            defaultBtn(toggleAutorefreshBtn);
+            toggleAutorefreshBtn.addEventListener("click", () => handleAutoRefreshBtn(toggleAutorefreshBtn));
+
+            // Opacity slider / @cchanche PR #27
+            const handleSlider = (event) => {
+                if(!opts.OVERLAY_STATE) {
+                    slider.value = opts.OVERLAY_OPACITY;
+                    return;
+                }
+                overlay.style.opacity = event.currentTarget.value;
+                opts.OVERLAY_OPACITY = event.currentTarget.value;
+                saveOpts();
+            }
+
+            const sliderBlock = document.createElement("div");
+            defaultStyle(sliderBlock);
+            defaultBlock(sliderBlock);
+
+            const sliderText = document.createTextNode(f("overlay_opacity"));
+            const slider = document.createElement("input");
+            slider.type = "range";
+            slider.min = 0;
+            slider.max = 1;
+            slider.step = 0.05;
+            slider.value = opts.OVERLAY_OPACITY;
+            slider.boder = "1px solid rgba(0,0,0,0.3)";
+            sliderBlock.appendChild(sliderText);
+            sliderBlock.appendChild(slider);
+
+            slider.addEventListener("input", (event) => handleSlider(event));
+
+            const langDiv = document.createElement("div");
+            defaultBlock(langDiv);
+            for(let lang of allowedLangs){
+                const langSpan = document.createElement("span");
+                langSpan.innerHTML = lang
+                langSpan.style.cursor = "pointer";
+                langSpan.style.padding = "10px";
+                langSpan.style.margin = "0 5px";
+                langSpan.style.border = "1px solid rgba(0,0,0,0.3)";
+                langSpan.style.borderRadius = "5px";
+                langSpan.style.background = "white";
+                langSpan.style.color = "black";
+                langSpan.style.textTransform = "uppercase";
+                langSpan.id = lang
+                if(opts.LANG === lang) {
+                    langSpan.style.backgroundColor = "#c3c3c3";
+                    langSpan.style.cursor = "not-allowed";
+                }
+
+                langDiv.appendChild(langSpan);
+
+                langSpan.addEventListener("click", (event) => {
+                    if(opts.LANG === event.target.id) return;
+                    opts.LANG = event.target.id;
+                    saveOpts();
+                    window.location.href = FTPLACE_URL;
+                })
+            }
+            // Version
+            const credits = document.createElement("div");
+            credits.id = "42lsa-credits";
+
+            const versionSpan = document.createElement("span");
+            versionSpan.innerHTML = f("by_staverni", GM_info.script.version);
+            versionSpan.style.position = "fixed";
+            versionSpan.style.bottom = "10px";
+            versionSpan.style.right = "10px";
+            defaultStyle(versionSpan);
+            defaultSpan(versionSpan);
+
+            // Append elements
+            control.appendChild(updateBtn);
+            control.appendChild(toggleOverlayBtn);
+            control.appendChild(refreshOverlayBtn);
+            control.appendChild(toggleAutorefreshBtn);
+            control.appendChild(toggleNocacheBtn);
+            control.appendChild(sliderBlock);
+            control.appendChild(langDiv);
+
+            document.body.appendChild(control);
+
+            credits.appendChild(versionSpan);
+            document.body.appendChild(credits);
+            log("UI Loaded");
+        }
+
+        if(opts.ENABLE_AUTOREFRESH) overlayAutoRefresh();
+        showOverlay();
+        showUi();
+    }, false);
+    checkVersion()
     console.log("42LSA module loaded");
 })();
