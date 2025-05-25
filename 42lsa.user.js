@@ -31,6 +31,7 @@
     // --- Constants and Options ---
     const UPDATE_URL = GM_info.script.updateURL; // Relies on @grant GM_info
     const DISCORD_URL = ""; // Define if you have one
+    // const OVERLAY_URL_BASE = "http://127.0.0.1:5500/overlay.png"
     const OVERLAY_URL_BASE = "https://raw.githubusercontent.com/42staverni/42lsa_ftplace/main/overlay.png";
     const VERSION_URL = "https://raw.githubusercontent.com/42staverni/42lsa_ftplace/main/version.json";
     const FTPLACE_URL = "https://ftplace.42lausanne.ch/";
@@ -214,7 +215,7 @@
             height: '400px',
             transform: currentTransform,
             marginTop: currentMarginTop,
-            imageRendering: "pixelated",
+            imageRendering: "crisp-edges",
             pointerEvents: "none",
             zIndex: '10',
             opacity: opts.OVERLAY_STATE ? opts.OVERLAY_OPACITY : '0'
