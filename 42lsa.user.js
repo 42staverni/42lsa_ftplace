@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FTPlace - 42LSA
 // @namespace    https://github.com/42staverni/42lsa_ftplace
-// @version      0.1 // Increment version for clarity
+// @version      0.1
 // @description  Letz show which is the best 42 student association.
 // @author       staverni
 // @match        https://ftplace.42lausanne.ch/*
