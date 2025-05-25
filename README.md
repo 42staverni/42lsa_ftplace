@@ -6,7 +6,7 @@
 - [Opera](https://addons.opera.com/en/extensions/details/tampermonkey-beta/)
 
 ### Install the script
-▶️ **Clic the link, and it will open the installation process:** [link](https://raw.githubusercontent.com/42staverni/42lsa_ftplace/main/42lsa.user.js)
+▶️ **Click the link, and it will open the installation process:** [link](https://raw.githubusercontent.com/42staverni/42lsa_ftplace/main/42lsa.user.js)
 
 ### Enjoy!
 ▶️ Go to the [ft_place](https://ftplace.42lausanne.ch/) page *(or refresh the page with `F5` or `Shift+F5` to empty the cache)*
