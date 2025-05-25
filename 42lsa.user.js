@@ -16,17 +16,15 @@
 (async function () {
     'use strict';
 
-    const DEBUG = true; // Keep true for testing
+    const DEBUG = false;
 
     // These variables will be assigned when the canvas/overlay are found/created
     let canvas = null;
     let overlay = null;
-    let uiControls = null; // To hold the UI control panel
+    let uiControls = null;
 
     // --- Constants and Options ---
-    const UPDATE_URL = GM_info.script.updateURL; // Relies on @grant GM_info
-    const DISCORD_URL = ""; // Define if you have one
-    // const OVERLAY_URL_BASE = "http://127.0.0.1:5500/overlay.png"
+    const UPDATE_URL = GM_info.script.updateURL;
     const OVERLAY_URL_BASE = "https://raw.githubusercontent.com/42staverni/42lsa_ftplace/main/overlay.png";
     const VERSION_URL = "https://raw.githubusercontent.com/42staverni/42lsa_ftplace/main/version.json";
     const FTPLACE_URL = "https://ftplace.42lausanne.ch/";
@@ -34,11 +32,11 @@
     const allowedLangs = ['fr', 'en'];
     const defaultOpts = {
         OVERLAY_STATE: true,
-        OVERLAY_OPACITY: 0.7, // Defaulting to a slightly transparent overlay
+        OVERLAY_OPACITY: 0.3,
         ENABLE_AUTOREFRESH: false,
         AUTOREFRESH_DELAY: 5000,
         ENABLE_IMGNOCACHE: true,
-        VERSION: GM_info.script.version, // Relies on @grant GM_info
+        VERSION: GM_info.script.version,
         LANG: allowedLangs[0]
     };
 
@@ -50,9 +48,8 @@
         }
     } catch (e) {
         console.warn("42LSA: Error parsing stored options, using defaults.", e);
-        opts = defaultOpts; // Fallback to defaults on error
+        opts = defaultOpts;
     }
-
 
     const saveOpts = () => {
         try {
@@ -183,7 +180,7 @@
                 const {version} = await response.json();
 
                 const needUpdate = versionState(version, GM_info.script.version) === 1;
-                if(needUpdate) showUpdate(version);
+                if(needUpdate) showUpdateNotification(version);
             } catch (err) {
                 console.warn("Couldn't get orders:", err);
             }
